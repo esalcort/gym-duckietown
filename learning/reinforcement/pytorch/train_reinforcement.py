@@ -43,6 +43,8 @@ def _train(args):
     # Initialize policy
     policy = DDPG(state_dim, action_dim, max_action, net_type="cnn")
     replay_buffer = ReplayBuffer(args.replay_buffer_max_size)
+    if args.load_model:
+        policy.load(filename='ddpg', directory=args.model_dir)
     print("Initialized DDPG")
     
     # Evaluate untrained policy
@@ -139,5 +141,6 @@ if __name__ == '__main__':
     parser.add_argument("--env_timesteps", default=500, type=int)  # Frequency of delayed policy updates
     parser.add_argument("--replay_buffer_max_size", default=10000, type=int)  # Maximum number of steps to keep in the replay buffer
     parser.add_argument('--model-dir', type=str, default='reinforcement/pytorch/models/')
+    parser.add_argument("--load_model", action="store_true")
 
     _train(parser.parse_args())
