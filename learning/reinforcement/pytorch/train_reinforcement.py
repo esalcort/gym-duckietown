@@ -45,6 +45,8 @@ def _train(args):
     replay_buffer = ReplayBuffer(args.replay_buffer_max_size)
     if args.load_model:
         policy.load(filename='ddpg', directory=args.model_dir)
+    if args.load_buffer:
+        replay_buffer.load(filename='ddpg_rb', directory=args.model_dir)
     print("Initialized DDPG")
     
     # Evaluate untrained policy
@@ -78,7 +80,10 @@ def _train(args):
 
                     if args.save_models:
                         policy.save(filename='ddpg', directory=args.model_dir)
+                    if args.save_buffer:
+                        replay_buffer.save(filename='ddpg_rb', directory=args.model_dir)
                     np.savez("./results/rewards.npz",evaluations)
+
 
             # Reset environment
             env_counter += 1
@@ -120,6 +125,8 @@ def _train(args):
     
     print("Training done, about to save..")
     policy.save(filename='ddpg', directory=args.model_dir)
+    if args.save_buffer:
+        replay_buffer.save(filename='ddpg_rb', directory=args.model_dir)
     print("Finished saving..should return now!")
 
 if __name__ == '__main__':
@@ -141,6 +148,8 @@ if __name__ == '__main__':
     parser.add_argument("--env_timesteps", default=500, type=int)  # Frequency of delayed policy updates
     parser.add_argument("--replay_buffer_max_size", default=10000, type=int)  # Maximum number of steps to keep in the replay buffer
     parser.add_argument('--model-dir', type=str, default='reinforcement/pytorch/models/')
-    parser.add_argument("--load_model", action="store_true")
+    parser.add_argument("--load_model", action="store_true") # Load an existing model from model-dir
+    parser.add_argument("--load_buffer", action="store_true") # Load an existing replay buffer from model-dir
+    parser.add_argument("--save_buffer", action="store_true")  # Save a copy of the replay buffer at each evaluation
 
     _train(parser.parse_args())

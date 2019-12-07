@@ -4,6 +4,7 @@ import gym
 import numpy as np
 import torch
 
+import os
 
 def seed(seed):
     torch.manual_seed(seed)
@@ -56,6 +57,16 @@ class ReplayBuffer(object):
             "done": np.stack(dones).reshape(-1,1)
         }
 
+    def save(self, filename, directory):
+        arr = np.array(self.storage)
+        np.savez(os.path.join(directory, filename), arr)
+
+    def load(self, filename, directory):
+        npzfile = np.load(os.path.join(directory, filename+".npz"))
+        self.storage = npzfile["arr_0"].tolist()
+        # We do not intend to change buffer size, but just in case, increase when size is larger than max
+        if self.max_size < len(self.storage):
+            self.max_size = len(self.storage)
 
 def evaluate_policy(env, policy, eval_episodes=10, max_timesteps=500):
     avg_reward = 0.
