@@ -1,3 +1,27 @@
+Follow Duckietown instructions to install all the necessary dependencies
+To run SAC for training: change directory to gym-duckietown/learning
+```
+	python3 -m reinforcement.pytorch.train_reinforcement --model sac
+``` 
+To run DDPG for training: change directory to gym-duckietown/learning
+```
+  python3 -m reinforcement.pytorch.train_reinforcement --model ddpg
+```
+The SAC and DDPG models are saved at:
+	gym-duckietown/learning/reinforcement/pytorch/models
+To run SAC for testing: change directory to gym-duckietown/learning
+```
+	python3 -m reinforcement.pytorch.enjoy_reinforcement --model sac
+```
+To run DDPG for training: change directory to gym-duckietown/learning
+```
+  python3 -m reinforcement.pytorch.enjoy_reinforcement --model ddpg
+```
+
+
+
+
+
 # Gym-Duckietown
 
 [![Build Status](https://circleci.com/gh/duckietown/gym-duckietown/tree/master.svg?style=shield)](https://circleci.com/gh/duckietown/gym-duckietown/tree/master) [![Docker Hub](https://img.shields.io/docker/pulls/duckietown/gym-duckietown.svg)](https://hub.docker.com/r/duckietown/gym-duckietown)
