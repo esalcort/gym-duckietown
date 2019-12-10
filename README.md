@@ -5,17 +5,19 @@ To run SAC for training: change directory to gym-duckietown/learning
 ``` 
 To run DDPG for training: change directory to gym-duckietown/learning
 ```
-  python3 -m reinforcement.pytorch.train_reinforcement --model ddpg
+ 	python3 -m reinforcement.pytorch.train_reinforcement --model ddpg
 ```
 The SAC and DDPG models are saved at:
+```
 	gym-duckietown/learning/reinforcement/pytorch/models
+```
 To run SAC for testing: change directory to gym-duckietown/learning
 ```
 	python3 -m reinforcement.pytorch.enjoy_reinforcement --model sac
 ```
 To run DDPG for training: change directory to gym-duckietown/learning
 ```
-  python3 -m reinforcement.pytorch.enjoy_reinforcement --model ddpg
+ 	python3 -m reinforcement.pytorch.enjoy_reinforcement --model ddpg
 ```
 
 
