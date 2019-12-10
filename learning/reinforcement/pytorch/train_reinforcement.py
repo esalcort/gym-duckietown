@@ -7,13 +7,14 @@ import numpy as np
 
 # Duckietown Specific
 from reinforcement.pytorch.ddpg import DDPG
+from reinforcement.pytorch.sac import SAC
 from reinforcement.pytorch.utils import seed, evaluate_policy, ReplayBuffer
 from utils.env import launch_env
 from utils.wrappers import NormalizeWrapper, ImgWrapper, \
     DtRewardWrapper, ActionWrapper, ResizeWrapper
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.DEBUG)
 
 def _train(args):   
     if not os.path.exists("./results"):
@@ -41,13 +42,14 @@ def _train(args):
     max_action = float(env.action_space.high[0])
 
     # Initialize policy
-    policy = DDPG(state_dim, action_dim, max_action, net_type="cnn")
-    replay_buffer = ReplayBuffer(args.replay_buffer_max_size)
-    if args.load_model:
-        policy.load(filename='ddpg', directory=args.model_dir)
-    if args.load_buffer:
-        replay_buffer.load(filename='ddpg_rb', directory=args.model_dir)
-    print("Initialized DDPG")
+    if args.model == "ddpg":
+        policy = DDPG(state_dim, action_dim, max_action, net_type="cnn")
+        replay_buffer = ReplayBuffer(args.replay_buffer_max_size)
+        print("Initialized DDPG")
+    elif args.model == "sac":
+        policy = SAC(state_dim, action_dim, max_action, net_type="cnn")
+        replay_buffer = ReplayBuffer(args.replay_buffer_max_size)
+        print("Initialized SAC")
     
     # Evaluate untrained policy
     evaluations= [evaluate_policy(env, policy)]
@@ -79,11 +81,13 @@ def _train(args):
                     print("rewards at time {}: {}".format(total_timesteps, evaluations[-1]))
 
                     if args.save_models:
-                        policy.save(filename='ddpg', directory=args.model_dir)
-                    if args.save_buffer:
-                        replay_buffer.save(filename='ddpg_rb', directory=args.model_dir)
-                    np.savez("./results/rewards.npz",evaluations)
-
+                        if args.model == 'ddpg':
+                            policy.save(filename='ddpg', directory=args.model_dir)
+                            np.savez("./results/ddpg_rewards.npz",evaluations)
+                        elif args.model == 'sac':
+                            policy.save(filename = 'sac', directory = args.model_dir)
+                            np.savez("./results/sac_rewards.npz",evaluations)
+                    
 
             # Reset environment
             env_counter += 1
@@ -124,9 +128,10 @@ def _train(args):
         timesteps_since_eval += 1
     
     print("Training done, about to save..")
-    policy.save(filename='ddpg', directory=args.model_dir)
-    if args.save_buffer:
-        replay_buffer.save(filename='ddpg_rb', directory=args.model_dir)
+    if args.model == 'ddpg':
+        policy.save(filename='ddpg', directory=args.model_dir)
+    elif args.model == 'sac':
+        policy.save(filename='sac', directory=args.model_dir)
     print("Finished saving..should return now!")
 
 if __name__ == '__main__':
@@ -148,8 +153,6 @@ if __name__ == '__main__':
     parser.add_argument("--env_timesteps", default=500, type=int)  # Frequency of delayed policy updates
     parser.add_argument("--replay_buffer_max_size", default=10000, type=int)  # Maximum number of steps to keep in the replay buffer
     parser.add_argument('--model-dir', type=str, default='reinforcement/pytorch/models/')
-    parser.add_argument("--load_model", action="store_true") # Load an existing model from model-dir
-    parser.add_argument("--load_buffer", action="store_true") # Load an existing replay buffer from model-dir
-    parser.add_argument("--save_buffer", action="store_true")  # Save a copy of the replay buffer at each evaluation
+    parser.add_argument('--model', type = str, default = "ddpg") # Model to use: ddpg, sac, ppo
 
     _train(parser.parse_args())
